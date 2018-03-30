@@ -1,1 +1,3 @@
-alert('ugh');
+function vHelloWorld() {
+  alert('hello world');
+}
