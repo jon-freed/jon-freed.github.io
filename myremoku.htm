@@ -1,0 +1,91 @@
+<html>
+    <head>
+        <title>myremoku</title>
+        <script>
+            var rokuip = 'http://192.168.0.76';
+
+            function bake_json_cookie(name, value) {
+                var cookie = [name, '=', JSON.stringify(value), '; domain=.', window.location.host.toString(), '; path=/;'].join('');
+                document.cookie = cookie;
+            }
+            function read_json_cookie(name) {
+                var result = document.cookie.match(new RegExp(name + '=([^;]+)'));
+                result && (result = JSON.parse(result[1]));
+                return result;
+            }
+
+            function onBodyLoad() {
+                
+                document.addEventListener('keydown', (e) => {
+                    if (event.metaKey || ['Shift', 'Meta'].includes(event.key)) return;
+                    // Roku Extended Control Protocol (ECP) documentation:
+                    // https://developer.roku.com/docs/developer-program/debugging/external-control-api.md
+                    // Keypress key values:
+                    // https://developer.roku.com/docs/developer-program/debugging/external-control-api.md#keypress-key-values
+                    var nonLitKeys = {
+                        ArrowLeft: 'Left',
+                        ArrowUp: 'Up',
+                        ArrowRight: 'Right',
+                        ArrowDown: 'Down',
+                        Backspace: 'Backspace',
+                        Enter: 'Select',
+                    };
+                    var keyPressPath = nonLitKeys[event.key] || 'LIT_' + event.key;
+                    postToRoku(keyPressPath, event);
+                });
+            }
+            function postToRoku(keyPath, event, keyDir) {
+                var f = document.all.form4Posting;
+                f.action = rokuip + ':8060/' + (!keyDir ? 'keypress' : keyDir) + '/' + keyPath;
+                console.log(
+                    `Posting to "${f.action}"` +
+                        (!event
+                            ? ''
+                            : ` event.type=[${event.type}] .key=[${event.key}] .keyCode=[${event.keyCode}] .code=[${event.code}]`)
+                );
+                f.submit();
+            }
+
+        </script>
+        <style>
+            div {
+                font-size: xxx-large;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 75px;
+                color: #dddddd;
+            }
+            span {
+                cursor: pointer;
+            }
+            span + span {
+                margin-left: 75px;
+            }
+        </style>
+    </head>
+    <body bgcolor="#000000" onload="onBodyLoad()">
+        <form></form>
+        <div>
+            <span onclick="postToRoku('PowerOff')">⌽</span>
+        </div>
+        <div>
+            <span onclick="postToRoku('Home')">⌂</span>
+            <span onclick="postToRoku('VolumeUp')">🔊</span>
+        </div>
+        <div>
+            <span onclick="postToRoku('Back')">←</span>
+            <span onclick="postToRoku('VolumeDown')">🔉</span>
+        </div>
+        <div>
+            <span onclick="postToRoku('Info',null,'keydown')">ⓘ</span>
+        </div>
+        <div>
+            <span onclick="postToRoku('Rev')">⏪️</span>
+            <span onclick="postToRoku('Play')">▶️</span>
+            <span onclick="postToRoku('Fwd')">⏩️</span>
+        </div>
+        <iframe name="if4roku" style="display: none;"></iframe>
+        <form id="form4Posting" target="if4roku" method="POST"></form>
+    </body>
+</html>
