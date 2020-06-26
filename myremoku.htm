@@ -5,7 +5,9 @@
             var rokuip = 'http://192.168.0.76';
 
             function bake_json_cookie(name, value) {
-                var cookie = [name, '=', JSON.stringify(value), '; domain=.', window.location.host.toString(), '; path=/;'].join('');
+                var cookie = [name, '=', JSON.stringify(value), '; domain=.', window.location.host.toString(), '; path=/;'].join(
+                    ''
+                );
                 document.cookie = cookie;
             }
             function read_json_cookie(name) {
@@ -15,7 +17,6 @@
             }
 
             function onBodyLoad() {
-                
                 document.addEventListener('keydown', (e) => {
                     if (event.metaKey || ['Shift', 'Meta'].includes(event.key)) return;
                     // Roku Extended Control Protocol (ECP) documentation:
@@ -23,10 +24,10 @@
                     // Keypress key values:
                     // https://developer.roku.com/docs/developer-program/debugging/external-control-api.md#keypress-key-values
                     var nonLitKeys = {
+                        ArrowDown: 'Down',
                         ArrowLeft: 'Left',
                         ArrowUp: 'Up',
                         ArrowRight: 'Right',
-                        ArrowDown: 'Down',
                         Backspace: 'Backspace',
                         Enter: 'Select',
                     };
@@ -45,7 +46,6 @@
                 );
                 f.submit();
             }
-
         </script>
         <style>
             div {
@@ -87,5 +87,7 @@
         </div>
         <iframe name="if4roku" style="display: none;"></iframe>
         <form id="form4Posting" target="if4roku" method="POST"></form>
+
+        <a href="" onclick="this.href=document.location+'?a'" ping="http://192.168.0.76/keypress/Up">test me</a>
     </body>
 </html>
