@@ -1,6 +1,6 @@
 (function(){
     
-    console.info('myics.js version 2020-09-03 11:24');
+    console.info('myics.js version 2020-09-03 11:34');
 
     var pp = document.querySelector('div#docs-printpreview');
     if( !pp || !pp.offsetParent ) {
