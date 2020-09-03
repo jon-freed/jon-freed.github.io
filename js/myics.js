@@ -31,7 +31,7 @@
         console.log(`text=[${text}]`);
         
         var meetings = text.match(/^\d[\d:]+[\s\S]*?(?=(\n\d[\d:])|(Page \d of \d))/gm);
-        console.log(`meetings=`,meetings);return;
+        console.log(`meetings=`,meetings);
 
         var uidDomain = (new Date()).toISOString().replaceAll(/[-:\.]/g,'');
         console.log(`uidDomain=[${uidDomain}]`);
