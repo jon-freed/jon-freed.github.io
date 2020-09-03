@@ -1,6 +1,6 @@
 (function(){
     
-    var version = 'myics.js version 2020-09-03 11:56';
+    var version = 'myics.js version 2020-09-03 13:40';
     console.warn(version);
 
     var pp = document.querySelector('div#docs-printpreview');
@@ -43,6 +43,7 @@
             console.log(`meeting ${m} =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=`)
 
             var subj = meetings[m].split('\n')[0].trim();
+            subj = subj.match(/(?<=\.m\.[\/:]).*/g)[0].trim();
             console.log(`subj=[${subj}]`);
 
             var desc = meetings[m].replaceAll('\n\n','\n').trim();
