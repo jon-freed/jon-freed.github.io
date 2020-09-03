@@ -1,6 +1,7 @@
 (function(){
     
-    console.info('myics.js version 2020-09-03 11:54');
+    var version = 'myics.js version 2020-09-03 11:56';
+    console.warn(version);
 
     var pp = document.querySelector('div#docs-printpreview');
     if( !pp || !pp.offsetParent ) {
@@ -108,6 +109,8 @@
         console.log(`filename=[${filename}]`);
 
         cal.download(filename);
+
+        console.warn(version);    
     }    
 
 })();
