@@ -90,7 +90,7 @@
             var end = getFullDate(time[1]);
             console.log(`end=[${end}]`);
 
-            cal.addEvent(subj, desc, loc, start, end);
+            cal.addEvent('[AI] ' + subj, desc, loc, start, end);
 
             var parsedMeetingTokens = {
                 "subj":subj,
