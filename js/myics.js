@@ -1,6 +1,6 @@
 (function(){
     
-    console.info('myics.js version 2020-09-03 11:02');
+    console.info('myics.js version 2020-09-03 11:24');
 
     var pp = document.querySelector('div#docs-printpreview');
     if( !pp || !pp.offsetParent ) {
@@ -28,10 +28,12 @@
 
         var printpreview = document.querySelector('iframe#docs-printpreview-frame');
         var text = printpreview.contentDocument.body.innerText;
+        console.log(`text=[${text}]`);
+        
         var meetings = text.match(/^\d[\d:]+[\s\S]*?(?=(\n\d[\d:])|(Page \d of \d))/gm);
-        console.log(`meetings=[${meetings}]`);
+        console.log(`meetings=`,meetings);return;
 
-        var uidDomain = date.toISOString().replaceAll(/[-:\.]/g,'');
+        var uidDomain = (new Date()).toISOString().replaceAll(/[-:\.]/g,'');
         console.log(`uidDomain=[${uidDomain}]`);
 
         var cal = new ics();
@@ -102,7 +104,7 @@
         }
         console.log('parsedMeetingsTokens=',parsedMeetingsTokens);
 
-        var filename = (new Date().toISOString()).replaceAll(':','.');
+        var filename = uidDomain;
         console.log(`filename=[${filename}]`);
 
         cal.download(filename);
