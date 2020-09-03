@@ -1,6 +1,6 @@
 (function(){
     
-    console.info('myics.js version 2020-09-03 10:31');
+    console.info('myics.js version 2020-09-03 11:02');
 
     var pp = document.querySelector('div#docs-printpreview');
     if( !pp || !pp.offsetParent ) {
@@ -30,6 +30,9 @@
         var text = printpreview.contentDocument.body.innerText;
         var meetings = text.match(/^\d[\d:]+[\s\S]*?(?=(\n\d[\d:])|(Page \d of \d))/gm);
         console.log(`meetings=[${meetings}]`);
+
+        var uidDomain = date.toISOString().replaceAll(/[-:\.]/g,'');
+        console.log(`uidDomain=[${uidDomain}]`);
 
         var cal = new ics();
         var parsedMeetingsTokens = [];
