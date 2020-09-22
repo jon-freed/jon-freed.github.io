@@ -1,6 +1,6 @@
 (function(){
     
-    var version = 'myics.js version 2020-09-15 13:15';
+    var version = 'myics.js version 2020-09-22 12:29';
 
     var logText = '';
     function log(x) {
@@ -71,101 +71,118 @@
 
     function exportIcs() {
 
-        var docTitle = document.querySelector('input.docs-title-input').value;
-        log(`docTitle=[${docTitle}]`);
+        try {
 
-        var dateRe = /(January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}/;
-        var date = new Date(docTitle.match(dateRe)[0]+' ' + new Date().getFullYear());
-        log(`date=[${date}]`);
+            var docTitle = document.querySelector('input.docs-title-input').value;
+            log(`docTitle=[${docTitle}]`);
 
-        var printpreview = document.querySelector('iframe#docs-printpreview-frame');
-        var text = printpreview.contentDocument.body.innerText;
-        log(`print preview frame text=[${text}]`);
-        
-        // Each meeting starts with a time, and it continues until the processor 
-        // sees another time, sees a Page number, or sees 'Displaying '.
-        var meetings = text.match(/^\d[\d:]+[\s\S]*?(?=(\n\d[\d:])|(Page \d of \d)|(\nDisplaying ))/gm);
-        log('meetings.length='+meetings.length);
+            var dateRe = /(January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}/;
+            var date = new Date(docTitle.match(dateRe)[0]+' ' + new Date().getFullYear());
+            log(`date=[${date}]`);
 
-        var uidDomain = (new Date()).toISOString().replaceAll(/[-:\.]/g,'');
-        log(`uidDomain=[${uidDomain}]`);
+            var printpreview = document.querySelector('iframe#docs-printpreview-frame');
+            var text = printpreview.contentDocument.body.innerText;
+            log(`print preview frame text=[${text}]`);
 
-        var cal = new ics(uidDomain);
-        var parsedMeetingsTokens = [];
-        for (var m=0; m < meetings.length; m++) {
-            log(`meeting ${m} =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=`)
+            // Each meeting starts with a time, and it continues until the processor 
+            // sees another time, sees a Page number, or sees 'Displaying '.
+            var meetings = text.match(/^\d[\d:]+[\s\S]*?(?=(\n\d[\d:])|(Page \d of \d)|(\nDisplaying ))/gm);
+            log('meetings.length='+meetings.length);
 
-            var subj = meetings[m].split('\n')[0].trim();
-            subj = subj.match(/(?<=\.m\.[\/:]).*/g)[0].trim();
-            log(`subj=[${subj}]`);
+            var uidDomain = (new Date()).toISOString().replaceAll(/[-:\.]/g,'');
+            log(`uidDomain=[${uidDomain}]`);
 
-            var desc = meetings[m].replaceAll('\t',' ').replaceAll('\n\n','\n').trim();
-            desc = desc.split('\n').slice(1).join('\n').replaceAll(';',', and');
-            log(`desc=[${desc}]`);
+            var cal = new ics(uidDomain);
+            var parsedMeetingsTokens = [];
+            for (var m=0; m < meetings.length; m++) {
+                log(`meeting ${m} =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=`)
 
-            var loc = subj.match(/https.+/);
-            loc = loc ? loc[0] : '';
-            log(`loc=[${loc}]`);
-
-            if( loc != '' ) {
-                subj = subj.replace(loc,'').trim();
+                var subj = meetings[m].split('\n')[0].trim();
+                try {
+                    subj = subj.match(/(?<=\.m\.[\/:]).*/g)[0].trim();
+                }
+                catch(e) {
+                    log(`error when trying to find the end of the meeting's time and get the remaining text as subject`);
+                }
                 log(`subj=[${subj}]`);
+
+                var desc = meetings[m].replaceAll('\t',' ').replaceAll('\n\n','\n').trim();
+                desc = desc.split('\n').slice(1).join('\n').replaceAll(';',', and');
+                log(`desc=[${desc}]`);
+
+                var loc = subj.match(/https.+/);
+                loc = loc ? loc[0] : '';
+                log(`loc=[${loc}]`);
+
+                if( loc != '' ) {
+                    subj = subj.replace(loc,'').trim();
+                    log(`subj=[${subj}]`);
+                }
+
+                var time = meetings[m].match(/[\d:\- ap\.m]*?(?=(: )|\/|( A-Z))/)[0];
+                log(`time=[${time}]`);
+                time = time.split('-');
+
+                function getFullDate(time) {
+                    var hour = time.split(':')[0];
+                    log(`hour=[${hour}]`);
+
+                    var hourInt = parseInt(hour);
+                    log(`hourInt=[${hourInt}]`);
+
+                    var hour24 = hourInt;
+                    if( hourInt <= 8 ) {
+                        hour24 = hourInt + 12;    
+                    } 
+                    log(`hour24=[${hour24}]`);
+
+                    var min = time.split(':')[1].replaceAll(/[ a\.pm\/]/g,'');
+                    log(`min=[${min}]`);
+
+                    var fullDate = new Date(date);
+                    fullDate.setHours( hour24 );
+                    fullDate.setMinutes( min );
+                    return fullDate;
+                }
+
+                var start = getFullDate(time[0]);
+                log(`start=[${start}]`);
+
+                var end;
+                if( time.length > 1 ) {
+                    end = getFullDate(time[1]);
+                }
+                else {
+                    log(`WARNING: there does not appear to be an end time for this meeting`);
+                    end = start;
+                }
+                log(`end=[${end}]`);
+
+                cal.addEvent('[AI] ' + subj, desc, loc, start, end);
+
+                var parsedMeetingTokens = {
+                    "subj":subj,
+                    "desc":desc,
+                    "loc":loc,
+                    "start":start,
+                    "end":end
+                };
+                log('parsedMeetingTokens=',parsedMeetingTokens);
+
+                parsedMeetingsTokens.push(parsedMeetingTokens);
             }
+            log('parsedMeetingsTokens=',parsedMeetingsTokens);
 
-            var time = meetings[m].match(/[\d:\- ap\.m]*?(?=(: )|\/|( A-Z))/)[0];
-            log(`time=[${time}]`);
-            time = time.split('-');
+            var filename = uidDomain;
+            log(`filename=[${filename}]`);
 
-            function getFullDate(time) {
-                var hour = time.split(':')[0];
-                log(`hour=[${hour}]`);
+            cal.download(filename);
 
-                var hourInt = parseInt(hour);
-                log(`hourInt=[${hourInt}]`);
-
-                var hour24 = hourInt;
-                if( hourInt <= 8 ) {
-                    hour24 = hourInt + 12;    
-                } 
-                log(`hour24=[${hour24}]`);
-
-                var min = time.split(':')[1].replaceAll(/[ a\.pm\/]/g,'');
-                log(`min=[${min}]`);
-
-                var fullDate = new Date(date);
-                fullDate.setHours( hour24 );
-                fullDate.setMinutes( min );
-                return fullDate;
-            }
-
-            var start = getFullDate(time[0]);
-            log(`start=[${start}]`);
-
-            var end = getFullDate(time[1]);
-            log(`end=[${end}]`);
-
-            cal.addEvent('[AI] ' + subj, desc, loc, start, end);
-
-            var parsedMeetingTokens = {
-                "subj":subj,
-                "desc":desc,
-                "loc":loc,
-                "start":start,
-                "end":end
-            };
-            log('parsedMeetingTokens=',parsedMeetingTokens);
-
-            parsedMeetingsTokens.push(parsedMeetingTokens);
+            log('meetings.length='+meetings.length);
         }
-        log('parsedMeetingsTokens=',parsedMeetingsTokens);
-
-        var filename = uidDomain;
-        log(`filename=[${filename}]`);
-
-        cal.download(filename);
-
-        log('meetings.length='+meetings.length);
-
+        catch(e) {
+            log(`ERROR ` + e.toString() );
+        }
         log(version);
     }    
 
