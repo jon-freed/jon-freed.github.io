@@ -181,7 +181,7 @@
             log('meetings.length='+meetings.length);
         }
         catch(e) {
-            log(`ERROR ` + e.toString() );
+            log(`ERROR ` + e.toString() + '\n' + e.stack||''  );
         }
         log(version);
     }    
