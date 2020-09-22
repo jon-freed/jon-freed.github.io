@@ -1,6 +1,6 @@
 (function(){
     
-    var version = 'myics.js version 2020-09-22 12:32';
+    var version = 'myics.js version 2020-09-22 12:35';
 
     var logText = '';
     function log(x) {
@@ -102,7 +102,7 @@
                     subj = subj.match(/(?<=\.m\.[\/:]).*/g)[0].trim();
                 }
                 catch(e) {
-                    log(`error when trying to find the end of the meeting's time and get the remaining text as subject`);
+                    log(`WARNING: cannot find the end of the meeting's time and get the remaining text as subject`);
                 }
                 log(`subj=[${subj}]`);
 
