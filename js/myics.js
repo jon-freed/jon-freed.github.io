@@ -1,6 +1,6 @@
 (function(){
     
-    var version = 'myics.js version 2020-09-22 12:29';
+    var version = 'myics.js version 2020-09-22 12:32';
 
     var logText = '';
     function log(x) {
@@ -8,7 +8,7 @@
         console.log(x);
 
         var idPrefix = 'myics';
-        var modalId = 'myicsoutputmodal';
+        var modalId = 'myicsoutputmodal'
         var modal = document.querySelector('#'+idPrefix+'overlaycontainer');
         if( !modal ) {
             modal = document.createElement("div");
